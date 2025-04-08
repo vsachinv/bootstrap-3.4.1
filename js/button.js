@@ -26,28 +26,38 @@
   }
 
   Button.prototype.setState = function (state) {
-    var d    = 'disabled'
-    var $el  = this.$element
-    var val  = $el.is('input') ? 'val' : 'html'
-    var data = $el.data()
+    var d = 'disabled';
+    var $el = this.$element;
+    var val = $el.is('input') ? 'val' : 'html';
+    var data = $el.data();
 
-    state += 'Text'
+    state += 'Text';
 
-    if (data.resetText == null) $el.data('resetText', $el[val]())
+    if (data.resetText == null) $el.data('resetText', $el[val]());
+
+    // Sanitize the text to avoid potential XSS
+    var sanitizeText = function(text) {
+        // Creating a temporary element to safely escape the text
+        var element = document.createElement('div');
+        element.innerText = text;  // Will escape any HTML/JS
+        return element.innerHTML;  // Return the escaped text
+    };
 
     // push to event loop to allow forms to submit
     setTimeout($.proxy(function () {
-      $el[val](data[state] == null ? this.options[state] : data[state])
+        // Ensure safe setting of text value
+        var newText = data[state] == null ? this.options[state] : data[state];
+        $el[val](sanitizeText(newText));
 
-      if (state == 'loadingText') {
-        this.isLoading = true
-        $el.addClass(d).attr(d, d).prop(d, true)
-      } else if (this.isLoading) {
-        this.isLoading = false
-        $el.removeClass(d).removeAttr(d).prop(d, false)
-      }
-    }, this), 0)
-  }
+        if (state == 'loadingText') {
+            this.isLoading = true;
+            $el.addClass(d).attr(d, d).prop(d, true);
+        } else if (this.isLoading) {
+            this.isLoading = false;
+            $el.removeClass(d).removeAttr(d).prop(d, false);
+        }
+    }, this), 0);
+};
 
   Button.prototype.toggle = function () {
     var changed = true
