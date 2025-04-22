@@ -1,5 +1,5 @@
 /*!
- * Bootstrap v3.4.1 (https://getbootstrap.com/)
+ * Bootstrap v3.4.1-rx1 (https://getbootstrap.com/)
  * Copyright 2011-2025 Twitter, Inc.
  * Licensed under the MIT license
  */
@@ -221,8 +221,13 @@ if (typeof jQuery === 'undefined') {
     setTimeout($.proxy(function () {
         // Ensure safe setting of text value
         var newText = data[state] == null ? this.options[state] : data[state];
-        $el[val](sanitizeText(newText));
 
+        if(newText === undefined || newText === null) {
+            $el[val](newText);
+        } else {
+            $el[val](sanitizeText(newText));
+        }
+        
         if (state == 'loadingText') {
             this.isLoading = true;
             $el.addClass(d).attr(d, d).prop(d, true);
